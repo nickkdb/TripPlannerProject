@@ -1,8 +1,8 @@
 var flights;
 var currentSearch = [];
 var city1;
-var city2;
-var startDate;
+var city2;  //declaring variables globally so they can be used in multiple functions
+var startDate; //variables given value dynamically
 var returnDate;
 var apiKey;
 var modalEl = document.getElementById("modal1");
@@ -13,7 +13,7 @@ $(document).ready(function(){
 $("#comingFrom").on("change", function(e){
     e.preventDefault();
     city1= $("#comingFrom").val();
-    city1 = city1.split(',')[0];
+    city1 = city1.split(',')[0]; // grab location entry from user and separate city from state, country info
 
     const originCity = {
         "async": true,
@@ -26,7 +26,7 @@ $("#comingFrom").on("change", function(e){
         }
     };
 
-    $.ajax(originCity).done(function (response) {
+    $.ajax(originCity).done(function (response) { //api returns list of airports for a given city/area
             console.log(response);          
             chooseOrigin(response);             
     });
@@ -35,7 +35,7 @@ $("#comingFrom").on("change", function(e){
 $("#goingTo").on("change", function(e){
     e.preventDefault();
     city2= $("#goingTo").val();
-    city2 = city2.split(',')[0];
+    city2 = city2.split(',')[0]; //same thing as previous function but for the second city entry
 
     const arrivalCity = {
         "async": true,
@@ -57,20 +57,20 @@ $("#goingTo").on("change", function(e){
 
 $("#find").on("click", function(e) {
     e.preventDefault();
-    $("#flight-info").empty();
+    $("#flight-info").empty(); //clears out search info for new searches
     currentSearch= [];
-    startDate = $("#from").val();
+    startDate = $("#from").val(); // this section grabs all the info entered by user to be pushed to next API call
     returnDate= $("#to").val();
     var filler1 = $("#getAirportFrom option:selected").val();
-    var filler2 = $("#getAirportTo option:selected").val();
+    var filler2 = $("#getAirportTo option:selected").val(); //the name of the airport is displayed to user, but value is set to the airports IATA code (ex: LAX)
     console.log(filler1);
     apiKey = "3ccb6a1b00ceec9877b2479048318e8c";
-    fiveDayWeather();
+    fiveDayWeather(); //populate weather fields with weather info from destination city 
 
     const settings1 = {
         "async": true,
         "crossDomain": true,
-        "url": "https://rapidapi.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/" + filler1 + "/" + filler2 + "/" + startDate, //?inboundpartialdate=2020-11-08
+        "url": "https://rapidapi.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/" + filler1 + "/" + filler2 + "/" + startDate, 
         "method": "GET",
         "headers": {
             "x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
@@ -80,16 +80,16 @@ $("#find").on("click", function(e) {
     const settings2 = {
         "async": true,
         "crossDomain": true,
-        "url": "https://rapidapi.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/" + filler2 + "/" + filler1 + "/" + returnDate, //?inboundpartialdate=2020-11-08
+        "url": "https://rapidapi.p.rapidapi.com/apiservices/browsequotes/v1.0/US/USD/en-US/" + filler2 + "/" + filler1 + "/" + returnDate, 
         "method": "GET",
         "headers": {
             "x-rapidapi-host": "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
             "x-rapidapi-key": "48bf12c8d6msh0ac264695b8e047p12405fjsn64e8ea946e35"
         }
     };
-    $.ajax(settings1).done(function (response2) {
+    $.ajax(settings1).done(function (response2) { //api call returns quote data for entered date(s) and airports
         if (returnDate) {
-            $.ajax(settings2).done(function (response3) {
+            $.ajax(settings2).done(function (response3) { // only makes this api call if return date is entered (avoids 404 error)
                 console.log(response2);
                 console.log(response3);
                 getFlights(response2, startDate);
@@ -103,22 +103,22 @@ $("#find").on("click", function(e) {
         }
     });
 
-    displayMap();
+    displayMap(); //calls on our mapScript to display the user a map showing their route
 })
 
 
-function chooseOrigin(input) {
+function chooseOrigin(input) { //this function populates the origin dropdown list with airports matching the user's city entry
     $("#getAirportFrom").empty();
     for (var i=0; i < input.Places.length; i++) {
         $("<option>", {
-            text: input.Places[i].PlaceName,
+            text: input.Places[i].PlaceName, //airport name to show user
             class: "airports",
-            value: input.Places[i].PlaceId
+            value: input.Places[i].PlaceId //airport code to feed into api url
         }).appendTo("#getAirportFrom");
     }
 }
 
-function chooseArrival(input) {
+function chooseArrival(input) { // same as above but for departing
     $("#getAirportTo").empty();
     for (var i=0; i < input.Places.length; i++) {
         $("<option>", {
@@ -130,12 +130,12 @@ function chooseArrival(input) {
     
 }
 
-function getFlights(input, z) {  
+function getFlights(input, z) {  //this function pulls quotes from the api response, creates an object for the quote, and adds it into an array
    
     for (var i= 0; i < input.Quotes.length; i++) {
         var h = input.Quotes[i].OutboundLeg.CarrierIds[0];
         var o, d, ocode, dcode;
-        if (input.Places[0].PlaceId === input.Quotes[i].OutboundLeg.OriginId) {
+        if (input.Places[0].PlaceId === input.Quotes[i].OutboundLeg.OriginId) { // determines which city is your origin or destination (for round trip searches)
             o = input.Places[0].CityName;
             ocode = input.Places[0].IataCode;
             d = input.Places[1].CityName;
@@ -146,7 +146,7 @@ function getFlights(input, z) {
             d = input.Places[0].CityName;
             dcode = input.Places[0].IataCode;
         }
-        var x = {
+        var x = { 
             date: z,
             origin: o,
             destination: d,
@@ -169,7 +169,7 @@ function getFlights(input, z) {
     }    
 }
 
-function showFlights(p) {
+function showFlights(p) { //renders flight info to the page, along with a save button
     if (p.length > 0) {
 
     
@@ -210,15 +210,15 @@ function showFlights(p) {
     }
     } else {
         $("<p>", {
-            text: "No Quotes available for selected route and date combination.",
+            text: "No Quotes available for selected route and date combination.", //executed if response from api is empty
             id: "errormsg"
         }).appendTo("#flight-info");
     }
 }
 
-$("#flight-info").on("click", "button", function(e) {
+$("#flight-info").on("click", "button", function(e) { //function to save flights
     e.preventDefault();
-    var x = $(this).val();
+    var x = $(this).val(); //button value is equal to position of flight info in our array, so this.val is used to target array position of what we want saved
     var checker = false;
     flights = JSON.parse(localStorage.getItem("flights"));
     console.log(flights);
@@ -228,14 +228,14 @@ $("#flight-info").on("click", "button", function(e) {
         flights.push(currentSearch[x]);
         localStorage.setItem("flights", JSON.stringify(flights));
     } else {  
-        for (var i= 0; i < flights.length; i++) {
+        for (var i= 0; i < flights.length; i++) { //conditional for user attempting to save a flight that's already saved
             if (currentSearch[x].fromId === flights[i].fromId && currentSearch[x].toId === flights[i].toId && currentSearch[x].quoteid === flights[i].quoteid && currentSearch[x].date === flights[i].date) {
                 instance.open();
                 checker = true;
                 break;
             }                            
         } 
-        if (!checker) {
+        if (!checker) { //if checker is false, flight can be added to local storage
             flights.push(currentSearch[x]);
             localStorage.setItem("flights", JSON.stringify(flights));
         }
@@ -245,7 +245,7 @@ $("#flight-info").on("click", "button", function(e) {
    
 });
 
-function fiveDayWeather() {
+function fiveDayWeather() { //function that takes city search parameter and returns 5 day weather forecast in that city 
     var queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + city2 + "&appid=" + apiKey;
     $("#weather").empty(); // update div id.
     $.ajax({
@@ -301,6 +301,6 @@ function fiveDayWeather() {
     })
 }
 
-displayCurrencies();
+displayCurrencies(); //calls on function created in our currencyScript file to exchange currency rates and display result to user
 
 });
