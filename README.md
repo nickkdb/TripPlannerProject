@@ -6,6 +6,6 @@ This application helps the user plan a trip by allowing them to enter their depa
 
 I spent the majority of my time developing this project on the backend, creating the logic and conditions that feed our APIs what they need, and returning it back to the user. Aside from functionality, much of our focus went into debugging, creating proper conditionals for test cases where something goes wrong (ex: no quotes available), and covering the bases for as many input scenarios as we could think of. This project was extremely fun to build and put together by a great group of people, enjoy!!
 
-*The project had 53 commits between all group members during its building, this repo only has 2 as it's a clone for individual submission purposes
+***The project had 53 commits between all group members during its building, this repo only has 2 as it's a clone for individual submission purposes
 
 <img src="./images/screenshot.png" alt="screenshot">
